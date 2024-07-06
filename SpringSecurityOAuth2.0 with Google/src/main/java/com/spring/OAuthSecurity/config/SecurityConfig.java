@@ -56,7 +56,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenService, userInfoUserDetailsService);
 
         http
@@ -72,14 +71,11 @@ public class SecurityConfig {
                         )
                         .successHandler(new OAuth2LoginSuccessHandler(jwtTokenService, userInfoRepository))
                 )
-                .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer
-                                .jwt(Customizer.withDefaults())
-                )
                 .formLogin(formLogin -> formLogin.successHandler(new UsernamePasswordSuccessHandler(jwtTokenService, userInfoRepository)))
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
