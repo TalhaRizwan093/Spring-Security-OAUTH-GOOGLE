@@ -1,5 +1,6 @@
 package com.spring.OAuthSecurity.handler;
 
+import com.spring.OAuthSecurity.model.Role;
 import com.spring.OAuthSecurity.model.UserInfo;
 import com.spring.OAuthSecurity.repository.UserInfoRepository;
 import com.spring.OAuthSecurity.service.JwtTokenService;
@@ -8,11 +9,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -32,13 +38,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String email = user.getAttribute("email");
 
         UserInfo savedUser = userInfoRepository.findByEmail(email).orElse(null);
-        String roles = "ROLE_USER";
+        List<Role> roles = savedUser != null ? savedUser.getRoles() : null;
 
-        if (savedUser != null) {
-            roles = savedUser.getRoles();
-        }
+        Collection<? extends GrantedAuthority> authorities = roles != null ? roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .toList() : null;
 
-        String token = jwtTokenService.createToken(email, roles);
+        String token = jwtTokenService.createToken(email, authorities);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

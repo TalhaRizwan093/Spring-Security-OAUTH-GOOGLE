@@ -24,11 +24,11 @@ public class UserInfoUserDetails implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorities;
 
-    public UserInfoUserDetails(UserInfo userInfo){
-        username = userInfo.getEmail();
-        password = userInfo.getPassword();
-        authorities = Arrays.stream(userInfo.getRoles().split(","))
-                .map(SimpleGrantedAuthority::new)
+    public UserInfoUserDetails(UserInfo userInfo) {
+        this.username = userInfo.getEmail();
+        this.password = userInfo.getPassword();
+        this.authorities = userInfo.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
                 .collect(Collectors.toList());
     }
 }

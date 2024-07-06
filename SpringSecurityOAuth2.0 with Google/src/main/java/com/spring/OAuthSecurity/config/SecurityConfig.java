@@ -4,6 +4,7 @@ package com.spring.OAuthSecurity.config;
 import com.spring.OAuthSecurity.filtter.JwtAuthenticationFilter;
 import com.spring.OAuthSecurity.handler.OAuth2LoginSuccessHandler;
 import com.spring.OAuthSecurity.handler.UsernamePasswordSuccessHandler;
+import com.spring.OAuthSecurity.repository.RoleRepository;
 import com.spring.OAuthSecurity.repository.UserInfoRepository;
 import com.spring.OAuthSecurity.service.JwtTokenService;
 import com.spring.OAuthSecurity.service.OAuthUserService;
@@ -37,12 +38,13 @@ public class SecurityConfig {
     private final JwtTokenService jwtTokenService;
     private final UserInfoUserDetailsService userInfoUserDetailsService;
     private final UserInfoRepository userInfoRepository;
+    private final RoleRepository roleRepository;
 
-
-    public SecurityConfig(JwtTokenService jwtTokenService, UserInfoUserDetailsService userInfoUserDetailsService, UserInfoRepository userInfoRepository) {
+    public SecurityConfig(JwtTokenService jwtTokenService, UserInfoUserDetailsService userInfoUserDetailsService, UserInfoRepository userInfoRepository, RoleRepository roleRepository) {
         this.jwtTokenService = jwtTokenService;
         this.userInfoUserDetailsService = userInfoUserDetailsService;
         this.userInfoRepository = userInfoRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Bean
@@ -81,7 +83,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authenticationProvider=new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
@@ -104,7 +106,7 @@ public class SecurityConfig {
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
-        return new OAuthUserService(userInfoRepository);
+        return new OAuthUserService(userInfoRepository, roleRepository);
     }
 
 }

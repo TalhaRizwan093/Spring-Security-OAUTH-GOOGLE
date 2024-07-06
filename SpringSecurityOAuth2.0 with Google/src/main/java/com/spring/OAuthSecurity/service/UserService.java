@@ -42,12 +42,8 @@ public class UserService {
 
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
 
-        String roles = authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
         if(auth.isAuthenticated()){
-            return jwtService.createToken(loginRequest.getEmail(), roles);
+            return jwtService.createToken(loginRequest.getEmail(), authorities);
         }else{
             throw new UsernameNotFoundException("invalid username or password !");
         }
